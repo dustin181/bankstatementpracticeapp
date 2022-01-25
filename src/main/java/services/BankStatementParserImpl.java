@@ -21,7 +21,6 @@ public class BankStatementParserImpl implements BankStatementParserService {
         return bankTransactions;
     }
 
-    @Override
     public BankTransaction parseFrom(String line) {
         final String[] columns = line.split(",");
 
