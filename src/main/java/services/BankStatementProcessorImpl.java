@@ -1,28 +1,20 @@
 package services;
 
-import com.google.inject.Inject;
+import lombok.Data;
 import models.BankTransaction;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
+import java.util.function.Predicate;
 
+@Data
 public class BankStatementProcessorImpl implements BankStatementProcessorService {
 
-    private final BankStatementParserService bankStatementParserService;
-
-    @Inject
-    public BankStatementProcessorImpl(BankStatementParserService bankStatementParserService) {
-        this.bankStatementParserService = bankStatementParserService;
-    }
-
     @Override
-    public double calculateTotalAmount(List<String> lines) {
+    public double calculateTotalAmount(List<BankTransaction> transactions) {
 
-        List<BankTransaction> bankTransactions = bankStatementParserService.parseLinesFrom(lines);
         double total = 0;
 
-        for(final BankTransaction bankTransaction: bankTransactions) {
+        for(final BankTransaction bankTransaction: transactions) {
             total += bankTransaction.getAmount();
         }
 
@@ -30,17 +22,15 @@ public class BankStatementProcessorImpl implements BankStatementProcessorService
     }
 
     @Override
-    public double calculateMonthSum(List<String> lines, Month aggregationMonth) {
+    public double calculateTotalAmount(List<BankTransaction> transactions, Predicate<BankTransaction> filter) {
 
-        List<BankTransaction> bankTransactions = bankStatementParserService.parseLinesFrom(lines);
         double total = 0;
 
-        for(final BankTransaction bankTransaction: bankTransactions) {
-            final LocalDate date = bankTransaction.getDate();
-            final Month transactionMonth = date.getMonth();
-            if(transactionMonth == aggregationMonth){
+        for(final BankTransaction bankTransaction: transactions) {
+            if(filter.test(bankTransaction)){
                 total += bankTransaction.getAmount();
             }
+
         }
 
         return total;
